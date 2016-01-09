@@ -104,6 +104,8 @@ function! s:EnterFocusMode()
     silent! only!
     silent! tabonly!
 
+    let t:wasNoWrap = &wrap
+    setl wrap
     call s:HideChrome()
     call s:CenterText()
 endfunc
@@ -112,13 +114,14 @@ endfunc
 function! s:ExitFocusMode()
     let l:cursor_position = getpos('.')
     call s:ShowChrome()
+    if t:wasNoWrap
+        setl wrap
+    else
+        setl nowrap
+    endif
     exec "silent! so ".s:temp_file
     exec delete(v:this_session)
     call setpos('.', l:cursor_position)
-    let s:focusbuffers = filter(range(1, bufnr('$')), 'buflisted(v:val) && getbufvar(bufname(v:val), "&filetype") != "focusmode" && bufwinnr(v:val)<0')
-    if !empty(s:focusbuffers)
-        exe 'bw '.join(s:focusbuffers, ' ')
-    endif
 endfunc
 
 " FocusMode
