@@ -44,7 +44,7 @@ endfunc
 
 " Create a new window on the left side of the current one and
 " return the cursor back to it.
-function! s:CreateSideWindow(width)
+function! s:CreateSideWindowLeft(width)
     let l:sr = &splitright
     set nosplitright
     vnew
@@ -58,18 +58,34 @@ function! s:CreateSideWindow(width)
     exe "normal! \<C-w>l"
 endfunc
 
+function! s:CreateSideWindowRight(width)
+    let l:sr = &splitright
+    set splitright
+    vnew
+    let &splitright = l:sr
+    setlocal nonumber
+    setlocal statusline=%(%)
+    setfiletype focusmode
+    exe "vert resize ".a:width
+    set winfixwidth
+    " Jump back to the window on the right
+    exe "normal! \<C-w>p"
+endfunction
+
 " Center text on the screen
 function! s:CenterText()
     let l:max_width = winwidth(0)
     let l:text_width = s:GetTextWidth()
-    let l:left_margin = (l:max_width - l:text_width) / 2
+    let l:left_margin = (l:max_width - l:text_width) / 3
 
     " Don't let the line numbers push the content too much
     if &number
         let l:left_margin = l:left_margin - &numberwidth
     endif
+
     if l:left_margin > 0
-        call s:CreateSideWindow(l:left_margin)
+        call s:CreateSideWindowLeft(l:left_margin)
+        call s:CreateSideWindowRight(l:left_margin)
     endif
 endfunc
 
