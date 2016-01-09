@@ -2,12 +2,6 @@
 " Copyright (c) 2012 Merlin Rebrovic
 " License: This plugin is released under the MIT License
 
-" Double loading guard
-if exists("g:loaded_focusmode") && !exists("g:focusmode_debug")
-  finish
-endif
-let g:loaded_focusmode = 1
-
 " Guard against users using 'compatible'
 let s:save_cpo = &cpo
 set cpo&vim
@@ -17,21 +11,10 @@ function! s:HideChrome()
     let t:focus_fillchars = &fillchars
     set fillchars+=vert:\ 
 
-    " Remove color from vertical and horizontal bars
-    if has("gui_running")
-        highlight VertSplit gui=none,bold
-        let l:guibg = synIDattr(synIDtrans(hlID("Normal")), "bg", "gui")
-        if l:guibg != ""
-            exec "highlight VertSplit guifg=".l:guibg." guibg=".l:guibg
-        endif
-    else
-        highlight VertSplit cterm=none,bold
-        let l:ctermbg = synIDattr(synIDtrans(hlID("Normal")), "bg", "cterm")
-        if l:ctermbg != -1 && l:ctermbg != ""
-            exec "highlight VertSplit ctermbg=".l:ctermbg." ctermfg=".l:ctermbg
-        else
-            highlight VertSplit ctermbg=NONE
-        endif
+    highlight VertSplit gui=none,bold
+    let l:guibg = synIDattr(synIDtrans(hlID("Normal")), "bg", "gui")
+    if l:guibg != ""
+        exec "highlight VertSplit guifg=".l:guibg." guibg=".l:guibg
     endif
 endfunc
 
@@ -102,22 +85,15 @@ endfunc
 " Turn on focus mode
 function! s:EnterFocusMode()
     call s:SaveCurrentSession()
-    silent! tabonly!
     silent! only!
+    silent! tabonly!
 
     call s:HideChrome()
     call s:CenterText()
-    augroup focusModeAutoQuit
-        autocmd!
-        autocmd BufUnload <buffer> qall!
-    augroup END
 endfunc
 
 " Turn off focus mode
 function! s:ExitFocusMode()
-    augroup focusModeAutoQuit
-        autocmd!
-    augroup END
     let l:cursor_position = getpos('.')
     call s:ShowChrome()
     exec "silent! so ".s:temp_file
@@ -140,7 +116,7 @@ function! s:ToggleFocusMode(...)
     endif
 endfunc
 
-noremap <unique> <script> <Plug>FocusModeToggle :call <SID>ToggleFocusMode()<CR>
+noremap <script> <Plug>FocusModeToggle :call <SID>ToggleFocusMode()<CR>
 
 " Resetting the 'compatible' guard
 let &cpo = s:save_cpo
