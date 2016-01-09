@@ -131,30 +131,16 @@ endfunc
 
 " FocusMode
 function! s:ToggleFocusMode(...)
-    if !exists("t:focusmode")
+    if !get(t:, "focusmode", 0)
         let t:focusmode = 1
         call s:EnterFocusMode()
     else
         call s:ExitFocusMode()
-        unlet t:focusmode
+        let t:focusmode = 0
     endif
 endfunc
 
-if !exists('g:focus_use_default_mapping')
-    let g:focus_use_default_mapping = 1
-endif
-
-if g:focus_use_default_mapping == 1
-    map <Leader>fmt <Plug>FocusModeToggle
-elseif g:focus_use_default_mapping == 0
-    if maparg("\<Leader>fmt") == '<Plug>FocusModeToggle'
-        unmap <Leader>fmt
-    endif
-else
-    echoerr 'g:focus_use_default_mapping set to invalid value'
-endif
-noremap <unique> <script> <Plug>FocusModeToggle <SID>ToggleFocusMode
-noremap <silent> <SID>ToggleFocusMode :call <SID>ToggleFocusMode()<CR>
+noremap <unique> <script> <Plug>FocusModeToggle :call <SID>ToggleFocusMode()<CR>
 
 " Resetting the 'compatible' guard
 let &cpo = s:save_cpo
